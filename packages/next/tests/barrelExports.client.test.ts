@@ -30,37 +30,35 @@ const asRecord = (mod: unknown) => mod as Record<string, unknown>
 
 describe('client barrels (browser exports condition)', () => {
     describe("@posthog/next/pages → 'browser' → pages.client", () => {
-        it('exposes the documented client-safe surface', () => {
-            expect(typeof pagesClient.PostHogProvider).toBe('function')
-            expect(typeof pagesClient.PostHogPageView).toBe('function')
+        it.each([
+            ['PostHogProvider', 'function'],
+            ['PostHogPageView', 'function'],
+        ])('exposes %s as %s', (name, expectedType) => {
+            expect(typeof asRecord(pagesClient)[name]).toBe(expectedType)
         })
 
-        it('omits server-only and Node-only symbols', () => {
-            const m = asRecord(pagesClient)
-            expect(m.getServerSidePostHog).toBeUndefined()
-            expect(m.getPostHog).toBeUndefined()
-            expect(m.postHogMiddleware).toBeUndefined()
-            expect(m.DEFAULT_INGEST_PATH).toBeUndefined()
-        })
+        it.each(['getServerSidePostHog', 'getPostHog', 'postHogMiddleware', 'DEFAULT_INGEST_PATH'])(
+            'omits %s',
+            (name) => {
+                expect(asRecord(pagesClient)[name]).toBeUndefined()
+            }
+        )
     })
 
     describe("@posthog/next → 'browser' → index.client", () => {
-        it('exposes the documented client-safe surface', () => {
-            expect(typeof indexClient.PostHogPageView).toBe('function')
-            expect(typeof indexClient.usePostHog).toBe('function')
-            expect(typeof indexClient.useFeatureFlag).toBe('function')
-            expect(typeof indexClient.useActiveFeatureFlags).toBe('function')
-            expect(typeof indexClient.PostHogFeature).toBe('function')
-            expect(typeof indexClient.DEFAULT_INGEST_PATH).toBe('string')
+        it.each([
+            ['PostHogPageView', 'function'],
+            ['usePostHog', 'function'],
+            ['useFeatureFlag', 'function'],
+            ['useActiveFeatureFlags', 'function'],
+            ['PostHogFeature', 'function'],
+            ['DEFAULT_INGEST_PATH', 'string'],
+        ])('exposes %s as %s', (name, expectedType) => {
+            expect(typeof asRecord(indexClient)[name]).toBe(expectedType)
         })
 
-        it('omits server-only and the App Router PostHogProvider', () => {
-            const m = asRecord(indexClient)
-            // PostHogProvider in `./` refers to the App Router server component;
-            // the Pages Router PostHogProvider lives in `./pages` only.
-            expect(m.PostHogProvider).toBeUndefined()
-            expect(m.getPostHog).toBeUndefined()
-            expect(m.postHogMiddleware).toBeUndefined()
+        it.each(['PostHogProvider', 'getPostHog', 'postHogMiddleware'])('omits %s', (name) => {
+            expect(asRecord(indexClient)[name]).toBeUndefined()
         })
     })
 })

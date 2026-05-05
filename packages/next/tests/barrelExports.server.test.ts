@@ -42,65 +42,68 @@ const asRecord = (mod: unknown) => mod as Record<string, unknown>
 
 describe('server barrels (default / edge / react-server exports conditions)', () => {
     describe("@posthog/next/pages → 'default' / 'react-server' → pages", () => {
-        it('exposes the full Pages Router surface', () => {
-            expect(typeof pagesNode.PostHogProvider).toBe('function')
-            expect(typeof pagesNode.PostHogPageView).toBe('function')
-            expect(typeof pagesNode.getServerSidePostHog).toBe('function')
-            expect(typeof pagesNode.getPostHog).toBe('function')
-            expect(typeof pagesNode.postHogMiddleware).toBe('function')
-            expect(typeof pagesNode.DEFAULT_INGEST_PATH).toBe('string')
+        it.each([
+            ['PostHogProvider', 'function'],
+            ['PostHogPageView', 'function'],
+            ['getServerSidePostHog', 'function'],
+            ['getPostHog', 'function'],
+            ['postHogMiddleware', 'function'],
+            ['DEFAULT_INGEST_PATH', 'string'],
+        ])('exposes %s as %s', (name, expectedType) => {
+            expect(typeof asRecord(pagesNode)[name]).toBe(expectedType)
         })
     })
 
     describe("@posthog/next/pages → 'edge' → pages.edge", () => {
-        it('exposes the documented edge-safe surface', () => {
-            expect(typeof pagesEdge.postHogMiddleware).toBe('function')
-            expect(typeof pagesEdge.PostHogPageView).toBe('function')
-            expect(typeof pagesEdge.DEFAULT_INGEST_PATH).toBe('string')
+        it.each([
+            ['postHogMiddleware', 'function'],
+            ['PostHogPageView', 'function'],
+            ['DEFAULT_INGEST_PATH', 'string'],
+        ])('exposes %s as %s', (name, expectedType) => {
+            expect(typeof asRecord(pagesEdge)[name]).toBe(expectedType)
         })
 
-        it('omits Node-server-only symbols that pull in posthog-node', () => {
-            const m = asRecord(pagesEdge)
-            expect(m.getServerSidePostHog).toBeUndefined()
-            expect(m.getPostHog).toBeUndefined()
-            // The Pages Router PostHogProvider belongs only in the client / default
-            // barrels — middleware files cannot render React.
-            expect(m.PostHogProvider).toBeUndefined()
+        it.each(['getServerSidePostHog', 'getPostHog', 'PostHogProvider'])('omits %s', (name) => {
+            expect(asRecord(pagesEdge)[name]).toBeUndefined()
         })
     })
 
     describe("@posthog/next → 'default' → index", () => {
-        it('exposes the full App Router surface', () => {
-            expect(typeof indexNode.PostHogProvider).toBe('function')
-            expect(typeof indexNode.PostHogPageView).toBe('function')
-            expect(typeof indexNode.getPostHog).toBe('function')
-            expect(typeof indexNode.postHogMiddleware).toBe('function')
-            expect(typeof indexNode.DEFAULT_INGEST_PATH).toBe('string')
+        it.each([
+            ['PostHogProvider', 'function'],
+            ['PostHogPageView', 'function'],
+            ['getPostHog', 'function'],
+            ['postHogMiddleware', 'function'],
+            ['DEFAULT_INGEST_PATH', 'string'],
+        ])('exposes %s as %s', (name, expectedType) => {
+            expect(typeof asRecord(indexNode)[name]).toBe(expectedType)
         })
     })
 
     describe("@posthog/next → 'edge' → index.edge", () => {
-        it('exposes the documented edge-safe surface', () => {
-            expect(typeof indexEdge.postHogMiddleware).toBe('function')
-            expect(typeof indexEdge.PostHogPageView).toBe('function')
-            expect(typeof indexEdge.DEFAULT_INGEST_PATH).toBe('string')
+        it.each([
+            ['postHogMiddleware', 'function'],
+            ['PostHogPageView', 'function'],
+            ['DEFAULT_INGEST_PATH', 'string'],
+        ])('exposes %s as %s', (name, expectedType) => {
+            expect(typeof asRecord(indexEdge)[name]).toBe(expectedType)
         })
 
-        it('omits Node-server-only symbols', () => {
-            const m = asRecord(indexEdge)
-            expect(m.PostHogProvider).toBeUndefined()
-            expect(m.getPostHog).toBeUndefined()
+        it.each(['PostHogProvider', 'getPostHog'])('omits %s', (name) => {
+            expect(asRecord(indexEdge)[name]).toBeUndefined()
         })
     })
 
     describe("@posthog/next → 'react-server' → index.react-server", () => {
-        it('exposes the App Router server component plus the client-safe re-exports', () => {
-            expect(typeof indexReactServer.PostHogProvider).toBe('function')
-            expect(typeof indexReactServer.PostHogPageView).toBe('function')
-            expect(typeof indexReactServer.usePostHog).toBe('function')
-            expect(typeof indexReactServer.useFeatureFlag).toBe('function')
-            expect(typeof indexReactServer.useActiveFeatureFlags).toBe('function')
-            expect(typeof indexReactServer.PostHogFeature).toBe('function')
+        it.each([
+            ['PostHogProvider', 'function'],
+            ['PostHogPageView', 'function'],
+            ['usePostHog', 'function'],
+            ['useFeatureFlag', 'function'],
+            ['useActiveFeatureFlags', 'function'],
+            ['PostHogFeature', 'function'],
+        ])('exposes %s as %s', (name, expectedType) => {
+            expect(typeof asRecord(indexReactServer)[name]).toBe(expectedType)
         })
     })
 })
