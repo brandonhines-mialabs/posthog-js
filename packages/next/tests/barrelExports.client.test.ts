@@ -33,11 +33,12 @@ describe('client barrels (browser exports condition)', () => {
         it.each([
             ['PostHogProvider', 'function'],
             ['PostHogPageView', 'function'],
+            ['DEFAULT_INGEST_PATH', 'string'],
         ])('exposes %s as %s', (name, expectedType) => {
             expect(typeof asRecord(pagesClient)[name]).toBe(expectedType)
         })
 
-        it.each(['getServerSidePostHog', 'getPostHog', 'postHogMiddleware', 'DEFAULT_INGEST_PATH'])(
+        it.each(['getServerSidePostHog', 'getPostHog', 'postHogMiddleware'])(
             'omits %s',
             (name) => {
                 expect(asRecord(pagesClient)[name]).toBeUndefined()

@@ -56,6 +56,7 @@ describe('server barrels (default / edge / react-server exports conditions)', ()
 
     describe("@posthog/next/pages → 'edge' → pages.edge", () => {
         it.each([
+            ['PostHogProvider', 'function'],
             ['postHogMiddleware', 'function'],
             ['PostHogPageView', 'function'],
             ['DEFAULT_INGEST_PATH', 'string'],
@@ -63,7 +64,7 @@ describe('server barrels (default / edge / react-server exports conditions)', ()
             expect(typeof asRecord(pagesEdge)[name]).toBe(expectedType)
         })
 
-        it.each(['getServerSidePostHog', 'getPostHog', 'PostHogProvider'])('omits %s', (name) => {
+        it.each(['getServerSidePostHog', 'getPostHog'])('omits %s', (name) => {
             expect(asRecord(pagesEdge)[name]).toBeUndefined()
         })
     })
